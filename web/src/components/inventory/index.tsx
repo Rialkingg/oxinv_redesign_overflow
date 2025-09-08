@@ -44,7 +44,7 @@ const Inventory = forwardRef((_, ref) => {
     <>
       <Fade in={inventoryVisible}>
         <div className="inventory-wrapper">
-          {/* <ExtraControls /> */}
+          <ExtraControls />
           <LeftInventory />
           <RightInventory />
           <Tooltip />
