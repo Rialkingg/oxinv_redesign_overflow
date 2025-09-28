@@ -8,10 +8,10 @@ $secondaryColorLight: rgba(0, 0, 0, 0.5);
 $secondaryColorDark: rgba(12, 12, 12, 0.8);
 
 $gridCols: 5;
-$gridRows: 4;
-$gridSize: 8vh;
+$gridRows: 3.5;
+$gridSize: 99px;
 $gridGap: 5px;
-$containerSize: calc(#{$gridRows} * #{$gridSize + 0.4vh} + #{$gridRows} * #{$gridGap});
+$containerSize: calc(#{$gridRows} * #{$gridSize} + #{$gridRows} * #{$gridGap});
 
 body {
   margin: 0;
@@ -147,13 +147,13 @@ button:active {
     font-size: 3000px;
     text-align: center;
     border: none;
-    color: #0A0A0A;
+    color: white;
     outline: none;
     
-    background-color: $secondaryColor;
+    background-color: #1a1a1a;
     
     &:focus-within {
-      background: #efeff0b7;
+      background: #2a2a2a;
     }
 
 
@@ -161,8 +161,8 @@ button:active {
 
   .inventory-control-button {
     font-size: 18px;
-    color: #0A0A0A;
-    background-color: #EFEFF0;
+    color: white;
+    background-color: #1a1a1a;
     transition: 200ms;
     border-radius: 5vh;
     border: none;
@@ -172,7 +172,32 @@ button:active {
     font-weight: 500;
 
     &:hover {
-      background: #efeff0b7;
+      background: #2a2a2a;
+    }
+  }
+}
+
+// Header-specific inventory control styling
+.inventory-control-header {
+  .inventory-control {
+    .inventory-control-wrapper {
+      gap: 0;
+    }
+    
+    .inventory-control-input {
+      width: 80px;
+      padding: 8px 12px;
+      font-size: 14px;
+      background-color: #1a1a1a;
+      color: white;
+      border-radius: 8px;
+      border: 1px solid #2a2a2a;
+      text-align: center;
+      
+      &:focus-within {
+        background: #2a2a2a;
+        outline: none;
+      }
     }
   }
 }
@@ -280,11 +305,10 @@ button:active {
 
 .inventory-grid-container {
   display: grid;
-  height: $containerSize;
   grid-template-columns: repeat($gridCols, $gridSize);
-  grid-auto-rows: $gridSize + 0.22vh;
+  grid-auto-rows: $gridSize;
   gap: $gridGap;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 // inventory slots

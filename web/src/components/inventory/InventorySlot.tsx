@@ -15,6 +15,7 @@ import { ItemsPayload } from '../../reducers/refreshSlots';
 import { closeTooltip, openTooltip } from '../../store/tooltip';
 import { openContextMenu } from '../../store/contextMenu';
 import { useMergeRefs } from '@floating-ui/react';
+import { motion } from 'framer-motion';
 
 interface SlotProps {
   inventoryId: Inventory['id'];
@@ -120,7 +121,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
   const refs = useMergeRefs([connectRef, ref]);
 
   return (
-    <div
+    <motion.div
       ref={refs}
       onContextMenu={handleContext}
       onClick={handleClick}
@@ -132,13 +133,82 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
           !canPurchaseItem(item, { type: inventoryType, groups: inventoryGroups }) || !canCraftItem(item, inventoryType)
             ? 'brightness(80%) grayscale(100%)'
             : undefined,
-        opacity: isDragging ? 0.4 : 1.0,
-        backgroundImage: `url(${item?.name ? getItemUrl(item as SlotWithItem) : 'none'}`,
-        backgroundSize: "80%",
-        transition: ".1s all ease-in-out",
-        transform: isOver ? 'scale(1.04)' : "",
+      }}
+      initial={{ 
+        opacity: 0, 
+        scale: 0.8, 
+        filter: "blur(10px)",
+        y: 5
+      }}
+      animate={{ 
+        opacity: isDragging ? 0.6 : 1, 
+        scale: isDragging ? 1.05 : (isOver ? 1.04 : 1), 
+        filter: isDragging ? "blur(1px) brightness(110%)" : "blur(0px)",
+        y: isDragging ? -3 : 0,
+        rotate: isDragging ? 2 : 0,
+        boxShadow: isDragging 
+          ? "0 8px 32px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2)" 
+          : isOver 
+            ? "0 4px 16px rgba(0, 0, 0, 0.2)" 
+            : "0 0 0 rgba(0, 0, 0, 0)"
+      }}
+      transition={{ 
+        duration: isDragging ? 0.2 : (isOver ? 0.15 : 0.2), 
+        ease: "easeOut",
+        delay: !isDragging && !isOver ? item.slot * 0.01 : 0,
+        type: isDragging ? "spring" : "tween",
+        stiffness: isDragging ? 300 : 100,
+        damping: isDragging ? 20 : 15
+      }}
+      drag={isSlotWithItem(item) && canDrag()}
+      dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+      dragElastic={0.1}
+      dragTransition={{ 
+        bounceStiffness: 300, 
+        bounceDamping: 20,
+        power: 0.2
+      }}
+      onDragStart={() => {
+        dispatch(closeTooltip());
+      }}
+      onDragEnd={() => {
+        // Reset any tooltip state if needed
       }}
     >
+      {/* Animated Item Image Overlay */}
+      {isSlotWithItem(item) && item?.name && (
+        <motion.div
+          key={`item-image-${item.name}-${item.slot}`}
+          className="absolute inset-0 bg-no-repeat bg-center pointer-events-none"
+          style={{
+            backgroundImage: `url(${getItemUrl(item as SlotWithItem)})`,
+            backgroundSize: "80%",
+          }}
+          initial={{ 
+            scale: 0.3, 
+            opacity: 0,
+            filter: "blur(4px)"
+          }}
+          animate={{ 
+            scale: 1, 
+            opacity: 1,
+            filter: "blur(0px)"
+          }}
+          exit={{
+            scale: 0.3,
+            opacity: 0,
+            filter: "blur(4px)"
+          }}
+          transition={{ 
+            duration: 0.4,
+            ease: [0.25, 0.46, 0.45, 0.94],
+            type: "spring",
+            stiffness: 200,
+            damping: 20
+          }}
+        />
+      )}
+      
       {isSlotWithItem(item) && (
         <div
           className="item-slot-wrapper"
@@ -157,10 +227,10 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
         >
           <div
             className={
-              inventoryType === 'player' && item.slot <= 5 ? 'item-hotslot-header-wrapper px-2 place-center' : 'item-slot-header-wrapper px-2'
+              inventoryType === 'player' && item.slot <= 4 ? 'item-hotslot-header-wrapper px-2 place-center' : 'item-slot-header-wrapper px-2'
             }
           >
-            {inventoryType === 'player' && item.slot <= 5 && <div className="inventory-slot-number">{item.slot}</div>}
+            {inventoryType === 'player' && item.slot <= 4 && <div className="inventory-slot-number">{item.slot}</div>}
             <div className="item-slot-info-wrapper">
               <p>{item.count ? `x` + item.count.toLocaleString('en-us') : ''}</p>
             </div>
@@ -211,7 +281,7 @@ const InventorySlot: React.ForwardRefRenderFunction<HTMLDivElement, SlotProps> =
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
